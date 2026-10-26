@@ -185,7 +185,7 @@
         <li class="row" data-reveal>
           <h3 class="row-verb">Prove</h3>
           <div class="row-ic"><i class="ph-light ph-file-text" aria-hidden="true"></i></div>
-          <p class="row-txt">Every alarm keeps its raw evidence. From it comes a Polish incident report: time, track, serial number, direction and pilot position when the drone broadcasts it.</p>
+          <p class="row-txt">Every alarm keeps its raw evidence. From it comes a Polish incident report: time, track, serial number, direction and pilot position when the drone broadcasts it. The complete documentation package — event log, report and decision record — is ready to hand to the authorities.</p>
         </li>
       </ol>
     </div>
@@ -305,6 +305,7 @@
             <dt>Hears</dt><dd>Control and video links at 433 MHz, 868 MHz and 1.2 GHz, used by FPV and long-range drones. Regardless of whether the drone is registered or broadcasts Remote ID at all — including home-built craft.</dd>
             <dt>Gives</dt><dd>A bearing from one node, a position from two.</dd>
             <dt>Misses</dt><dd>2.4 and 5.8 GHz links, and drones with no radio link at all.</dd>
+            <dt>Doesn't report</dt><dd>Height. A bearing is a direction, not an altitude — we know height only from Remote ID, meaning only for drones that broadcast it themselves.</dd>
           </dl>
         </div>
       </div>
