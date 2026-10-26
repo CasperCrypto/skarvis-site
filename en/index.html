@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SKARVIS · HERMES: passive drone detection for sites</title>
+<meta name="description" content="HERMES is a passive drone detection node for infrastructure sites in Poland and the EU. It reads Remote ID, finds the direction of drone links and writes an incident report. In development.">
+<meta name="theme-color" content="#ececea">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="SKARVIS · HERMES: know when a drone is over your site">
+<meta property="og:description" content="A passive, receive-only drone detection node. In development, pilot list open.">
+<link rel="alternate" hreflang="pl" href="../">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="../assets/js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hdr" data-hdr>
+  <div class="strip">
+    <div class="wrap">
+      <span class="strip-tag">STATUS</span>
+      <span class="strip-txt">In development. We test the software on simulated signals; the first HERMES node is being prepared.</span>
+      <a href="#status">Build status <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <nav class="wrap" aria-label="Main">
+      <a class="brand" href="#top" aria-label="SKARVIS home">
+        <span class="brand-word">SKARVIS</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#hermes">HERMES</a></li>
+        <li><a href="#targets">Targets</a></li>
+        <li><a href="#status">Status</a></li>
+      </ul>
+      <div class="lang" aria-label="Language">
+        <a href="../" hreflang="pl" lang="pl">PL</a><span aria-current="true">EN</span>
+      </div>
+      <a class="btn btn-primary btn-sm nav-cta" href="#pilot">Join the pilot list</a>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu" data-burger><span></span><span></span><span></span></button>
+    </nav>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu>
+  <ul>
+    <li><a href="#how">How it works <small>01</small></a></li>
+    <li><a href="#hermes">HERMES <small>02</small></a></li>
+    <li><a href="#targets">Targets <small>03</small></a></li>
+    <li><a href="#status">Status <small>04</small></a></li>
+    <li><a href="#pilot">Join the pilot list <small>05</small></a></li>
+  </ul>
+  <div class="menu-foot">
+    <div class="lang" aria-label="Language"><a href="../" hreflang="pl" lang="pl">PL</a><span aria-current="true">EN</span></div>
+    <span class="label">Receive-only. No jamming.</span>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero" id="top" data-hero>
+    <canvas class="hero-canvas" data-hero-canvas aria-hidden="true"></canvas>
+    <div class="hero-labels" data-hero-labels aria-hidden="true">
+      <div class="hl" data-hl="node"><div class="hl-box">HERMES 01</div></div>
+      <div class="hl" data-hl="pilot"><div class="hl-box">PILOT</div></div>
+      <div class="hl hl-drone" data-hl="drone"><div class="hl-box"><b data-hl-state>OUTSIDE ZONE</b><span data-hl-brg>BEARING 000°</span></div></div>
+    </div>
+    <div class="hud plus" aria-hidden="true">
+      <div class="hud-top">
+        <span class="label">Illustration, not live data</span>
+      </div>
+      <div class="hud-ladder"><div class="hud-ladder-track" data-ladder></div></div>
+      <div class="hud-tape">
+        <div class="hud-tape-track" data-tape></div>
+        <div class="hud-tape-caret"></div>
+        <div class="hud-tape-read" data-tape-read>&uarr; 000°T</div>
+      </div>
+      <div class="inspector plus">
+        <div class="insp-head">
+          <span class="label">Track 01</span>
+          <span class="insp-state" data-insp-state>OUTSIDE ZONE</span>
+        </div>
+        <dl>
+          <dt>Source</dt><dd>Remote ID + bearing</dd>
+          <dt>Bearing</dt><dd data-insp-brg>000°</dd>
+          <dt>Altitude</dt><dd data-insp-alt>0 m</dd>
+          <dt>Distance</dt><dd data-insp-dist>0 m</dd>
+        </dl>
+        <div class="insp-spark"><svg viewBox="0 0 268 20" preserveAspectRatio="none"><polyline data-insp-spark fill="none" stroke="#111214" stroke-width="1" points=""/></svg></div>
+        <div class="insp-foot">Altitude, last 30 s</div>
+      </div>
+    </div>
+    <div class="hero-sentinel" data-hero-sentinel></div>
+
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">HERMES · drone detection node</p>
+        <h1 class="display">Know when a drone is over your site.</h1>
+        <p class="lead">HERMES listens for drone radio signals. You get an alert, a direction and an incident record for your protection plan.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#pilot">Join the pilot list <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></a>
+          <a class="btn btn-ghost" href="#status">Build status</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY FACTS -->
+  <section class="facts" aria-label="Key facts">
+    <div class="wrap">
+      <div class="fact" data-reveal>
+        <div class="fact-k">Remote ID <i class="ph-light ph-identification-card" aria-hidden="true"></i></div>
+        <div class="fact-v">Mandatory in the EU since 1 January 2024 for class-marked drones. HERMES reads the serial number and the drone and pilot positions.</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.06s">
+        <div class="fact-k">Direction finding <i class="ph-light ph-compass" aria-hidden="true"></i></div>
+        <div class="fact-v">Five antennas point to the 433 MHz, 868 MHz and 1.2 GHz links that FPV and long-range drones use.</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.12s">
+        <div class="fact-k">Receive-only <i class="ph-light ph-radio" aria-hidden="true"></i></div>
+        <div class="fact-v">Receive-only devices need no radio permit in Poland (art. 145 of the Electronic Communications Law).</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.18s">
+        <div class="fact-k">Polish incident report <i class="ph-light ph-file-text" aria-hidden="true"></i></div>
+        <div class="fact-v">Each alarm becomes a record for the site's protection file.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAW -->
+  <section class="sec" id="law" aria-labelledby="law-h">
+    <div class="wrap">
+      <div class="law-grid">
+        <h2 class="h2" id="law-h" data-reveal>A problem that just became an obligation.</h2>
+        <div data-reveal style="--d:.08s">
+          <p class="lead">Since the 29 May 2026 amendment to Poland's crisis management act, critical infrastructure operators must include the drone threat in their threat analysis and site protection plan.</p>
+          <p class="lead">Most systems on the market were designed for the military, with neutralisation features a civilian site cannot legally use. What is missing is a layer that detects and documents.</p>
+          <p class="label law-src">Act of 29 May 2026 (Dz.U. 2026 item 815)</p>
+        </div>
+      </div>
+      <ol class="timeline" data-reveal aria-label="Deadlines after entry in the register">
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Day 0</div><div class="tl-what">Notice of entry in the register</div></li>
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Within 6 months</div><div class="tl-what">Threat analysis, including drone scenarios</div></li>
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Next 6 months</div><div class="tl-what">Protection measures in place</div></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- HOW -->
+  <section class="sec sec-panel" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="how-h" data-reveal>From signal to report.</h2>
+      </div>
+      <ol class="rows">
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Listen</h3>
+          <div class="row-ic"><i class="ph-light ph-waveform" aria-hidden="true"></i></div>
+          <p class="row-txt">HERMES goes on a mast or roof. It receives Remote ID over Wi-Fi and Bluetooth and finds the direction of drone control links. No cameras, no emissions of any kind.</p>
+        </li>
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Alert</h3>
+          <div class="row-ic"><i class="ph-light ph-bell-ringing" aria-hidden="true"></i></div>
+          <p class="row-txt">When a drone enters the zone, the person on duty gets an alert with its confidence level. Confidence is shown, not hidden.</p>
+        </li>
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Prove</h3>
+          <div class="row-ic"><i class="ph-light ph-file-text" aria-hidden="true"></i></div>
+          <p class="row-txt">Every alarm keeps its raw evidence. From it comes a Polish incident report: time, track, serial number, direction and pilot position when the drone broadcasts it.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- HERMES NODE -->
+  <section class="sec" id="hermes" aria-labelledby="hermes-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>Hardware</p>
+        <h2 class="h2" id="hermes-h" data-reveal style="--d:.05s">The HERMES node</h2>
+        <p class="lead" data-reveal style="--d:.1s">One weatherproof box per mast. The ID version reads Remote ID. The ID + DF version adds a five-antenna direction finder. Rotate the model, open the cover, switch versions.</p>
+      </div>
+
+      <div class="node-grid" data-node>
+        <div data-reveal>
+          <div class="stage plus" data-node-stage>
+            <canvas aria-label="Interactive 3D model of the HERMES node: an enclosure on a mast, with a five-antenna direction-finding array above it on the ID + DF version" role="img"></canvas>
+            <div class="stage-bar">
+              <span class="label">HERMES / 3D model</span>
+              <span class="label stage-hint"><i class="ph-light ph-hand-grabbing" aria-hidden="true"></i> Drag to rotate</span>
+            </div>
+            <div class="stage-loading" aria-hidden="true"></div>
+            <div class="stage-tip" data-node-tip aria-hidden="true"></div>
+            <div class="label stage-readout" data-node-readout aria-hidden="true">YAW 0° · PITCH 0°</div>
+            <div class="stage-fallback"><p>The 3D model needs a browser with WebGL. The parts list describes the node.</p></div>
+          </div>
+          <div class="controls" role="group" aria-label="Model controls">
+            <button class="chip" type="button" data-act="spin" aria-pressed="true">Rotate</button>
+            <button class="chip" type="button" data-act="front" aria-pressed="false">Front</button>
+            <button class="chip" type="button" data-act="side" aria-pressed="false">Side</button>
+            <button class="chip" type="button" data-act="top" aria-pressed="false">Top</button>
+            <button class="chip" type="button" data-act="cover" aria-pressed="false">Open cover</button>
+            <span class="sep" aria-hidden="true"></span>
+            <button class="chip chip-acc" type="button" data-variant="id" aria-pressed="false">ID</button>
+            <button class="chip chip-acc" type="button" data-variant="df" aria-pressed="true">ID + DF</button>
+          </div>
+        </div>
+
+        <div class="parts" data-reveal style="--d:.08s">
+          <div class="parts-head">
+            <span class="label" data-variant-title>HERMES ID + DF · parts</span>
+            <span class="label">08</span>
+          </div>
+          <ul>
+            <li><button class="part" type="button" data-part="enclosure"><span class="part-sw" style="background:#2c2f35"></span><span><span class="part-n">IP66/IP67 enclosure</span><span class="part-d">Mast or wall mount</span></span></button></li>
+            <li><button class="part" type="button" data-part="pi"><span class="part-sw" style="background:#3e7d52"></span><span><span class="part-n">Raspberry Pi 5</span><span class="part-d">Runs the node, keeps records offline</span></span></button></li>
+            <li><button class="part" type="button" data-part="esp"><span class="part-sw" style="background:#2f6fa8"></span><span><span class="part-n">ESP32-C5 ×2</span><span class="part-d">Remote ID on 2.4 and 5 GHz Wi-Fi</span></span></button></li>
+            <li><button class="part" type="button" data-part="cc"><span class="part-sw" style="background:#7a5ba6"></span><span><span class="part-n">CC2652P receiver</span><span class="part-d">Remote ID on Bluetooth 5 Long Range</span></span></button></li>
+            <li><button class="part" type="button" data-part="idant"><span class="part-sw" style="background:#e8e4db"></span><span><span class="part-n">ID antennas</span><span class="part-d">2.4 and 5 GHz, on the box</span></span></button></li>
+            <li><button class="part" type="button" data-part="kraken" data-df><span class="part-sw" style="background:#8a8f98"></span><span><span class="part-n">KrakenSDR</span><span class="part-d">5 coherent channels, 24 to 1766 MHz. ID + DF only</span></span></button></li>
+            <li><button class="part" type="button" data-part="array" data-df><span class="part-sw" style="background:#ff5a1f"></span><span><span class="part-n">Direction-finding array</span><span class="part-d">5 antennas on a circle, tuned for 868 MHz. ID + DF only</span></span></button></li>
+            <li><button class="part" type="button" data-part="clamps"><span class="part-sw" style="background:#62656c"></span><span><span class="part-n">Mast clamps</span><span class="part-d">3D-printed adapters</span></span></button></li>
+          </ul>
+          <p class="parts-note">Concept model, simplified, not to scale. Click a part to point it out.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANDS -->
+  <section class="sec sec-panel" id="bands" aria-labelledby="bands-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="bands-h" data-reveal>Two senses, different bands.</h2>
+        <p class="lead" data-reveal style="--d:.06s">The KrakenSDR cannot hear 2.4 or 5.8 GHz. So HERMES combines two sources that cover each other's blind spots.</p>
+      </div>
+
+      <div class="spec-scroll" data-reveal>
+        <div class="spec-head">
+          <span class="label">Band coverage · log scale</span>
+          <span class="label">300 MHz to 7 GHz</span>
+        </div>
+        <div class="spec" role="img" aria-label="Band chart: the KrakenSDR direction finder covers 24 to 1766 MHz, including 433 MHz, 868 MHz and 1.2 GHz. The Remote ID receivers cover 2.4 GHz and 5 GHz. Above 1766 MHz no bearing is possible.">
+          <div class="spec-lane">
+            <span class="label spec-lab">Direction finder · KrakenSDR</span>
+            <div class="spec-bed">
+              <div class="spec-cover" style="width:56.28%"></div>
+              <div class="spec-out" style="left:56.28%"><span>Beyond the direction finder</span></div>
+              <div class="band df" style="left:11.65%"><span class="band-t">433 MHz</span></div>
+              <div class="band df" style="left:33.73%"><span class="band-t">868 MHz</span></div>
+              <div class="band df band-w" style="left:44.01%;width:2.54%"><span class="band-t">1.2 GHz</span></div>
+            </div>
+          </div>
+          <div class="spec-lane">
+            <span class="label spec-lab">Remote ID · ESP32-C5 + CC2652P</span>
+            <div class="spec-bed">
+              <div class="band rid" style="left:66.56%"><span class="band-t">2.4 GHz</span></div>
+              <div class="band rid band-w" style="left:90.26%;width:4.04%"><span class="band-t">5 GHz</span></div>
+            </div>
+          </div>
+          <div class="spec-limit" style="left:calc(32px + (100% - 64px) * 0.5628)"><span>1766 MHz · KrakenSDR limit</span></div>
+          <div class="spec-axis">
+            <span class="tick" style="left:16.22%">500 MHz</span>
+            <span class="tick" style="left:38.22%">1 GHz</span>
+            <span class="tick" style="left:60.23%">2 GHz</span>
+            <span class="tick" style="left:89.32%">5 GHz</span>
+          </div>
+        </div>
+      </div>
+      <p class="label spec-note">Bands from KrakenSDR documentation and the Remote ID standards. Design range, not a measurement.</p>
+
+      <div class="sensors">
+        <div class="sensor" data-reveal>
+          <div class="sensor-k"><span class="sensor-sw" style="background:#111214"></span><h3 class="h3">Identity receivers</h3></div>
+          <dl>
+            <dt>Hears</dt><dd>Drones broadcasting Remote ID on 2.4 and 5 GHz Wi-Fi and Bluetooth 5.</dd>
+            <dt>Gives</dt><dd>Serial number, position, altitude, speed, pilot or takeoff position.</dd>
+            <dt>Misses</dt><dd>Anything that doesn't broadcast Remote ID, including most hostile drones.</dd>
+          </dl>
+        </div>
+        <div class="sensor" data-reveal style="--d:.08s">
+          <div class="sensor-k"><span class="sensor-sw" style="background:#ff5a1f"></span><h3 class="h3">Direction finder</h3></div>
+          <dl>
+            <dt>Hears</dt><dd>Control and video links at 433 MHz, 868 MHz and 1.2 GHz, used by FPV and long-range drones.</dd>
+            <dt>Gives</dt><dd>A bearing from one node, a position from two.</dd>
+            <dt>Misses</dt><dd>2.4 and 5.8 GHz links, and drones with no radio link at all.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- SOFTWARE -->
+  <section class="sec" id="software" aria-labelledby="soft-h">
+    <div class="wrap soft-grid">
+      <div>
+        <div class="sec-head">
+          <h2 class="h2" id="soft-h" data-reveal>One event, one format.</h2>
+          <p class="lead" data-reveal style="--d:.06s">Every sensor writes events in the same JSON format, one per line. The software runs today on simulated signals and passes 110 automated tests.</p>
+        </div>
+        <ul class="feats" data-reveal style="--d:.1s">
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Zones and a list of authorised flights, such as your own inspection drones</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Operator acknowledgement and a persistent event log</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Polish incident report, PDF or HTML, for the site's protection file</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Detection and records with no internet; the internet only adds remote access</span></li>
+        </ul>
+      </div>
+      <div data-reveal style="--d:.08s">
+        <div class="code plus">
+          <div class="code-bar"><span class="label">events.jsonl</span><span class="code-tag">Example</span></div>
+<pre><code>{
+  <span class="k">"schema"</span>: <span class="s">"czapla.event/1"</span>,
+  <span class="k">"ts_utc"</span>: <span class="s">"2026-10-22T14:32:07.412Z"</span>,
+  <span class="k">"node_id"</span>: <span class="s">"hermes-01"</span>,
+  <span class="k">"sensor"</span>: <span class="s">"rf"</span>,
+  <span class="k">"band_mhz"</span>: <span class="n">868.4</span>,
+  <span class="k">"snr_db"</span>: <span class="n">21.3</span>,
+  <span class="k">"bearing_deg"</span>: <span class="n">234.0</span>,
+  <span class="k">"bearing_sigma_deg"</span>: <span class="n">6.0</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.83</span>,
+  <span class="k">"classification"</span>: <span class="s">"drone_like"</span>,
+  <span class="k">"alarm"</span>: <span class="b">true</span>,
+  <span class="k">"alarm_reason"</span>: <span class="s">"thresholds_met"</span>
+}</code></pre>
+        </div>
+        <p class="label code-cap">Event format from the software. Example values, not a measurement.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- TARGETS -->
+  <section class="sec sec-panel" id="targets" aria-labelledby="targets-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>Design targets</p>
+        <h2 class="h2" id="targets-h" data-reveal style="--d:.05s">Targets, not results.</h2>
+        <p class="lead" data-reveal style="--d:.1s">Nothing below is a measured result yet. Each line gets its real number once the field tests run.</p>
+      </div>
+
+      <div class="tiles">
+        <article class="tile" data-reveal>
+          <div class="tile-bar"><span class="label">Bearing</span><span class="label">T-3</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><path d="M120 104 L97.2 19 A88 88 0 0 1 142.8 19 Z" fill="rgba(255,90,31,.1)" stroke="#ff5a1f" stroke-width="1"/><line x1="120" y1="104" x2="120" y2="8" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><path d="M58 50 A88 88 0 0 1 182 50" fill="none" stroke="#a8a9a4" stroke-width="1"/><rect x="116" y="100" width="8" height="8" fill="#111214"/></svg>
+            </div>
+            <div class="tile-v">±15°</div>
+            <p class="tile-d">Bearing accuracy on the test bench.</p>
+            <div class="tile-tags"><span class="tag tag-t">Target</span><span class="tag">Not measured</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.06s">
+          <div class="tile-bar"><span class="label">Position</span><span class="label">T-6</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><line x1="36" y1="102" x2="132" y2="22" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><line x1="204" y1="102" x2="108" y2="22" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><circle cx="120" cy="32" r="17" fill="rgba(255,90,31,.1)" stroke="#ff5a1f" stroke-width="1"/><circle cx="120" cy="32" r="2.5" fill="#ff5a1f"/><rect x="32" y="98" width="8" height="8" fill="#111214"/><rect x="200" y="98" width="8" height="8" fill="#111214"/></svg>
+            </div>
+            <div class="tile-v">100<small>m</small></div>
+            <p class="tile-d">Position error from two nodes at 500 m range.</p>
+            <div class="tile-tags"><span class="tag tag-t">Target</span><span class="tag">Not measured</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.12s">
+          <div class="tile-bar"><span class="label">Alarm latency</span><span class="label">T-7</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><line x1="16" y1="78" x2="224" y2="78" stroke="#111214" stroke-width="1"/><g stroke="#a8a9a4" stroke-width="1"><line x1="16" y1="78" x2="16" y2="86"/><line x1="57.6" y1="78" x2="57.6" y2="84"/><line x1="99.2" y1="78" x2="99.2" y2="84"/><line x1="140.8" y1="78" x2="140.8" y2="84"/><line x1="182.4" y1="78" x2="182.4" y2="84"/><line x1="224" y1="78" x2="224" y2="86"/></g><path d="M16 78 L22 60 L28 92 L34 50 L40 86 L46 66 L52 78" fill="none" stroke="#111214" stroke-width="1"/><line x1="196" y1="26" x2="196" y2="78" stroke="#ff5a1f" stroke-width="1.5"/><rect x="190" y="20" width="12" height="12" fill="#ff5a1f"/><text x="16" y="104" font-family="IBM Plex Mono, monospace" font-size="10" fill="#686a6f">0 s</text><text x="210" y="104" font-family="IBM Plex Mono, monospace" font-size="10" fill="#686a6f">5 s</text></svg>
+            </div>
+            <div class="tile-v">&lt;5<small>s</small></div>
+            <p class="tile-d">From first signal to an alert for the person on duty.</p>
+            <div class="tile-tags"><span class="tag tag-t">Target</span><span class="tag">Not measured</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.18s">
+          <div class="tile-bar"><span class="label">Detection range</span><span class="label">On site</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><g fill="none" stroke="#a8a9a4" stroke-width="1" stroke-dasharray="2 5"><path d="M40 104 A80 80 0 0 1 200 104"/><path d="M68 104 A52 52 0 0 1 172 104"/><path d="M94 104 A26 26 0 0 1 146 104"/></g><line x1="16" y1="104" x2="224" y2="104" stroke="#111214" stroke-width="1"/><rect x="116" y="96" width="8" height="8" fill="#111214"/><text x="120" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" fill="#ff5a1f">?</text></svg>
+            </div>
+            <div class="tile-v">?</div>
+            <p class="tile-d">Measured at each site with a test flight. Depends on mast height and terrain.</p>
+            <div class="tile-tags"><span class="tag">Not measured</span></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="groups">
+        <div class="group" data-reveal>
+          <h3 class="h3">Reception</h3>
+          <dl>
+            <dt>Remote ID <span class="tag tag-t">Target</span></dt>
+            <dd>Wi-Fi Beacon, Wi-Fi NAN, Bluetooth 4 Legacy, Bluetooth 5 Long Range (ASTM F3411, ASD-STAN prEN 4709-002).</dd>
+            <dt>Direction finding <span class="tag tag-t">Target</span></dt>
+            <dd>KrakenSDR, 5 coherent channels, 24 to 1766 MHz. 433 MHz, 868 MHz and 1.2 GHz links.</dd>
+          </dl>
+        </div>
+        <div class="group" data-reveal style="--d:.06s">
+          <h3 class="h3">Platform</h3>
+          <dl>
+            <dt>Computer <span class="tag tag-t">Target</span></dt>
+            <dd>Raspberry Pi 5, local storage.</dd>
+            <dt>Power <span class="tag tag-t">Target</span></dt>
+            <dd>PoE or 12 V. One cable up the mast.</dd>
+            <dt>Enclosure <span class="tag tag-t">Target</span></dt>
+            <dd>IP66/IP67, mast or wall mount.</dd>
+          </dl>
+        </div>
+        <div class="group" data-reveal style="--d:.12s">
+          <h3 class="h3">By design</h3>
+          <dl>
+            <dt>Emissions <span class="tag tag-ok">By design</span></dt>
+            <dd>Receive-only. No transmit path in the hardware.</dd>
+            <dt>Offline operation <span class="tag tag-ok">By design</span></dt>
+            <dd>Detection and records need no internet.</dd>
+            <dt>Data <span class="tag tag-ok">By design</span></dt>
+            <dd>Evidence retention configurable, 90 days by default.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITS -->
+  <section class="sec" id="limits" aria-labelledby="limits-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="limits-h" data-reveal>What HERMES doesn't do, and what it can't see.</h2>
+        <p class="lead" data-reveal style="--d:.06s">Honest limits, before you ask.</p>
+      </div>
+      <div class="limits-grid">
+        <div class="limit-col" data-reveal>
+          <h3 class="h3"><i class="ph-light ph-prohibit" aria-hidden="true"></i>Doesn't do</h3>
+          <ul>
+            <li><strong>It doesn't jam or take over a drone.</strong> The device only receives. It has no transmit path.</li>
+            <li><strong>It doesn't neutralise.</strong> A person decides on any action against a drone, under the law, including art. 156ze of Poland's Aviation Law.</li>
+            <li><strong>It doesn't replace radar.</strong> It is a low-cost detection layer that is quick to deploy, not a military system.</li>
+          </ul>
+        </div>
+        <div class="limit-col" data-reveal style="--d:.08s">
+          <h3 class="h3"><i class="ph-light ph-eye-slash" aria-hidden="true"></i>Can't see</h3>
+          <ul>
+            <li><strong>Fibre-optic drones and drones with no radio link.</strong> Those need radar or cameras. Fusion with such sensors is planned for version 2.</li>
+            <li><strong>2.4 and 5.8 GHz drones that don't broadcast Remote ID.</strong> The direction finder only hears bands below 1766 MHz.</li>
+            <li><strong>Coordinates from a single node.</strong> A bearing is a direction. A position needs two nodes.</li>
+            <li><strong>A reliable baseline from day one.</strong> In signal-dense surroundings false hits rise, so the system learns the background during a baseline period.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- STATUS -->
+  <section class="sec sec-panel" id="status" aria-labelledby="status-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="status-h" data-reveal>Where we are.</h2>
+        <p class="lead" data-reveal style="--d:.06s">We publish results as they come in, including the ones that fail.</p>
+      </div>
+      <ol class="road" data-reveal>
+        <li class="now">
+          <span class="road-dot"></span>
+          <div class="road-when">Now</div>
+          <p class="road-what">Software</p>
+          <p class="road-txt">Detection, classification and the Polish report run on simulated signals. 110 automated tests pass.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">Next</div>
+          <p class="road-what">First node on the bench</p>
+          <p class="road-txt">Remote ID reception and direction finding against known transmitters.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">Then</div>
+          <p class="road-what">Field tests</p>
+          <p class="road-txt">Two nodes, real flights, a 24-hour false alarm count, 7 days in Polish weather.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">After that</div>
+          <p class="road-what">Pilot sites</p>
+          <p class="road-txt">90-day pilots with scope and acceptance criteria agreed first.</p>
+        </li>
+      </ol>
+      <div class="who" data-reveal>
+        <span class="label who-k">For</span>
+        <span class="pill">Municipalities and counties</span>
+        <span class="pill">Solar and wind farms</span>
+        <span class="pill">Logistics parks</span>
+        <span class="pill">Critical infrastructure operators</span>
+        <span class="pill">Security companies and integrators</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILOT -->
+  <section class="sec" id="pilot" aria-labelledby="pilot-h">
+    <div class="wrap pilot-grid">
+      <div>
+        <p class="eyebrow" data-reveal>Pilot list</p>
+        <h2 class="h2" id="pilot-h" data-reveal style="--d:.05s;margin-top:20px">Put your site on the pilot list.</h2>
+        <p class="lead" data-reveal style="--d:.1s;margin-top:20px">Tell us about your site. When the field tests pass, sites on the list get the first pilot slots.</p>
+        <ol class="steps" data-reveal style="--d:.14s">
+          <li>We call you and look at the site on a map.</li>
+          <li>If it's a fit, we send a one-page, non-binding letter of intent.</li>
+          <li>You get the test results before anything is offered for sale.</li>
+        </ol>
+        <dl class="terms" data-reveal style="--d:.18s">
+          <dt>We provide</dt><dd>A node for the test period, software, incident reports, help interpreting the results.</dd>
+          <dt>We need</dt><dd>Space on a mast or roof, power, and permission to measure in real conditions.</dd>
+          <dt>Duration</dt><dd>90 days, with a final report of the measured figures.</dd>
+          <dt>Cost</dt><dd>Agreed after we talk about scope. We don't publish prices before scope is agreed.</dd>
+        </dl>
+      </div>
+
+      <div class="form-shell plus" data-reveal style="--d:.08s">
+        <div class="form-bar"><span class="label">Site registration</span><span class="label">No payment · no commitment</span></div>
+        <div class="form-body" data-form-body>
+          <form class="form" data-pilot-form novalidate>
+            <div class="field">
+              <label for="f-name">Name <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" aria-describedby="e-name">
+              <span class="err" id="e-name"></span>
+            </div>
+            <div class="field">
+              <label for="f-org">Organisation or site <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-org" name="organization" type="text" autocomplete="organization" required maxlength="200" aria-describedby="e-org">
+              <span class="err" id="e-org"></span>
+            </div>
+            <div class="field">
+              <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-email" name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="e-email">
+              <span class="err" id="e-email"></span>
+            </div>
+            <div class="field">
+              <label for="f-phone">Phone <span class="opt">(optional)</span></label>
+              <input class="input" id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+            </div>
+            <div class="field">
+              <label for="f-type">Site type <span class="req" aria-hidden="true">*</span></label>
+              <select class="input" id="f-type" name="site_type" required aria-describedby="e-type">
+                <option value="">Choose</option>
+                <option value="gmina">Municipality or county</option>
+                <option value="oze">Solar or wind farm</option>
+                <option value="logistics">Warehouse or logistics</option>
+                <option value="critical">Critical infrastructure</option>
+                <option value="integrator">Security company or integrator</option>
+                <option value="other">Other</option>
+              </select>
+              <span class="err" id="e-type"></span>
+            </div>
+            <div class="field">
+              <label for="f-town">Town <span class="opt">(optional)</span></label>
+              <input class="input" id="f-town" name="town" type="text" autocomplete="address-level2" maxlength="120">
+            </div>
+            <div class="field field-full">
+              <label for="f-msg">What worries you about drones at this site? <span class="opt">(optional)</span></label>
+              <textarea class="input" id="f-msg" name="message" rows="4" maxlength="4000" aria-describedby="h-msg"></textarea>
+              <span class="help" id="h-msg">For example size, surroundings, whether the protection plan already covers drones.</span>
+            </div>
+            <div class="hp" aria-hidden="true">
+              <label for="f-web">Website</label>
+              <input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="check">
+              <input id="f-loi" name="loi_interest" type="checkbox">
+              <label for="f-loi">I'm open to signing a non-binding letter of intent for a pilot.</label>
+            </div>
+            <div class="check">
+              <input id="f-consent" name="consent" type="checkbox" required aria-describedby="e-consent">
+              <label for="f-consent">I agree to the processing of this data so you can contact me about the pilot. Details in the <a href="privacy.html">privacy policy</a>. <span class="req" aria-hidden="true">*</span></label>
+              <span class="err" id="e-consent"></span>
+            </div>
+            <div class="form-msg" role="alert" data-form-msg></div>
+            <div class="form-foot">
+              <button class="btn btn-primary" type="submit" data-submit>Send registration <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></button>
+              <span class="muted">Fields marked <span class="req">*</span> are required.</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="SKARVIS, back to top">
+          <span class="brand-word">SKARVIS</span>
+        </a>
+        <p>Passive drone detection and event recording. HERMES only receives signals. It does not jam, take over or bring down drones.</p>
+      </div>
+      <div>
+        <p class="label">Contact</p>
+        <p>Bolesławiec, Poland</p>
+        <p data-contact>Via the <a href="#pilot">pilot form</a></p>
+      </div>
+      <div>
+        <p class="label">Site</p>
+        <ul class="foot-links">
+          <li><a href="privacy.html">Privacy policy</a></li>
+          <li><a href="../" hreflang="pl" lang="pl">Polski</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 SKARVIS · in development</span>
+      <span>Not an offer within the meaning of art. 66 of the Polish Civil Code. Specifications will be confirmed by field tests.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

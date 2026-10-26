@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SKARVIS · HERMES: pasywna detekcja dronów dla obiektów</title>
+<meta name="description" content="HERMES to pasywny węzeł detekcji dronów dla obiektów infrastruktury w Polsce. Odbiera Remote ID, namierza łącza dronów i tworzy raport incydentu po polsku. Projekt w fazie rozwoju.">
+<meta name="theme-color" content="#ececea">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="SKARVIS · HERMES: wiesz, kiedy dron jest nad Twoim obiektem">
+<meta property="og:description" content="Pasywny, wyłącznie odbiorczy węzeł detekcji dronów. Projekt w fazie rozwoju, lista pilotażowa otwarta.">
+<link rel="alternate" hreflang="pl" href="./">
+<link rel="alternate" hreflang="en" href="en/">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<script>document.documentElement.classList.add('js')</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="assets/js/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+
+<header class="hdr" data-hdr>
+  <div class="strip">
+    <div class="wrap">
+      <span class="strip-tag">STATUS</span>
+      <span class="strip-txt">Projekt w fazie rozwoju. Oprogramowanie testujemy na sygnałach symulowanych, pierwszy węzeł HERMES jest w&nbsp;przygotowaniu.</span>
+      <a href="#status">Stan prac <i class="ph-light ph-arrow-right" aria-hidden="true"></i></a>
+    </div>
+  </div>
+  <div class="nav-bar">
+    <nav class="wrap" aria-label="Główna">
+      <a class="brand" href="#top" aria-label="SKARVIS, strona główna">
+        <span class="brand-word">SKARVIS</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#how">Jak działa</a></li>
+        <li><a href="#hermes">HERMES</a></li>
+        <li><a href="#targets">Parametry</a></li>
+        <li><a href="#status">Stan prac</a></li>
+      </ul>
+      <div class="lang" aria-label="Język">
+        <span aria-current="true">PL</span><a href="en/" hreflang="en" lang="en">EN</a>
+      </div>
+      <a class="btn btn-primary btn-sm nav-cta" href="#pilot">Zgłoś obiekt</a>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu" data-burger><span></span><span></span><span></span></button>
+    </nav>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu>
+  <ul>
+    <li><a href="#how">Jak działa <small>01</small></a></li>
+    <li><a href="#hermes">HERMES <small>02</small></a></li>
+    <li><a href="#targets">Parametry <small>03</small></a></li>
+    <li><a href="#status">Stan prac <small>04</small></a></li>
+    <li><a href="#pilot">Zgłoś obiekt <small>05</small></a></li>
+  </ul>
+  <div class="menu-foot">
+    <div class="lang" aria-label="Język"><span aria-current="true">PL</span><a href="en/" hreflang="en" lang="en">EN</a></div>
+    <span class="label">Tylko odbiór. Bez zakłócania.</span>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- HERO -->
+  <section class="hero" id="top" data-hero>
+    <canvas class="hero-canvas" data-hero-canvas aria-hidden="true"></canvas>
+    <div class="hero-labels" data-hero-labels aria-hidden="true">
+      <div class="hl" data-hl="node"><div class="hl-box">HERMES 01</div></div>
+      <div class="hl" data-hl="pilot"><div class="hl-box">PILOT</div></div>
+      <div class="hl hl-drone" data-hl="drone"><div class="hl-box"><b data-hl-state>POZA STREFĄ</b><span data-hl-brg>NAMIAR 000°</span></div></div>
+    </div>
+    <div class="hud plus" aria-hidden="true">
+      <div class="hud-top">
+        <span class="label">Ilustracja, nie dane na żywo</span>
+      </div>
+      <div class="hud-ladder"><div class="hud-ladder-track" data-ladder></div></div>
+      <div class="hud-tape">
+        <div class="hud-tape-track" data-tape></div>
+        <div class="hud-tape-caret"></div>
+        <div class="hud-tape-read" data-tape-read>&uarr; 000°T</div>
+      </div>
+      <div class="inspector plus">
+        <div class="insp-head">
+          <span class="label">Ślad 01</span>
+          <span class="insp-state" data-insp-state>POZA STREFĄ</span>
+        </div>
+        <dl>
+          <dt>Źródło</dt><dd>Remote ID + namiar</dd>
+          <dt>Namiar</dt><dd data-insp-brg>000°</dd>
+          <dt>Wysokość</dt><dd data-insp-alt>0 m</dd>
+          <dt>Odległość</dt><dd data-insp-dist>0 m</dd>
+        </dl>
+        <div class="insp-spark"><svg viewBox="0 0 268 20" preserveAspectRatio="none"><polyline data-insp-spark fill="none" stroke="#111214" stroke-width="1" points=""/></svg></div>
+        <div class="insp-foot">Wysokość, ostatnie 30 s</div>
+      </div>
+    </div>
+    <div class="hero-sentinel" data-hero-sentinel></div>
+
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">HERMES · węzeł detekcji dronów</p>
+        <h1 class="display">Wiesz, kiedy dron jest nad Twoim obiektem.</h1>
+        <p class="lead">HERMES nasłuchuje sygnałów radiowych dronów. Dostajesz alarm, kierunek i&nbsp;raport incydentu do planu ochrony.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#pilot">Zgłoś obiekt <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></a>
+          <a class="btn btn-ghost" href="#status">Stan prac</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY FACTS -->
+  <section class="facts" aria-label="Najważniejsze fakty">
+    <div class="wrap">
+      <div class="fact" data-reveal>
+        <div class="fact-k">Remote ID <i class="ph-light ph-identification-card" aria-hidden="true"></i></div>
+        <div class="fact-v">Obowiązkowy w UE od 1 stycznia 2024 r. dla dronów z oznaczeniem klasy. HERMES odczytuje numer seryjny, pozycję drona i pilota.</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.06s">
+        <div class="fact-k">Namiar <i class="ph-light ph-compass" aria-hidden="true"></i></div>
+        <div class="fact-v">Pięć anten wskazuje kierunek łączy 433 MHz, 868 MHz i 1,2 GHz, używanych przez drony FPV i dalekiego zasięgu.</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.12s">
+        <div class="fact-k">Tylko odbiór <i class="ph-light ph-radio" aria-hidden="true"></i></div>
+        <div class="fact-v">Urządzenia wyłącznie odbiorcze nie wymagają pozwolenia radiowego (art. 145 Prawa komunikacji elektronicznej).</div>
+      </div>
+      <div class="fact" data-reveal style="--d:.18s">
+        <div class="fact-k">Raport po polsku <i class="ph-light ph-file-text" aria-hidden="true"></i></div>
+        <div class="fact-v">Każdy alarm staje się wpisem do dokumentacji ochrony obiektu.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LAW -->
+  <section class="sec" id="law" aria-labelledby="law-h">
+    <div class="wrap">
+      <div class="law-grid">
+        <h2 class="h2" id="law-h" data-reveal>Problem, który właśnie stał się obowiązkiem.</h2>
+        <div data-reveal style="--d:.08s">
+          <p class="lead">Po nowelizacji ustawy o&nbsp;zarządzaniu kryzysowym z&nbsp;29 maja 2026 r. operatorzy infrastruktury krytycznej muszą uwzględnić zagrożenie dronowe w&nbsp;analizie zagrożeń i&nbsp;w&nbsp;planie ochrony obiektu.</p>
+          <p class="lead">Większość dostępnych systemów projektowano dla wojska, z&nbsp;elementami neutralizacji, których obiekt cywilny nie może legalnie użyć. Brakuje warstwy, która wykrywa i&nbsp;dokumentuje.</p>
+          <p class="label law-src">Ustawa z 29 maja 2026 r. (Dz.U. 2026 poz. 815)</p>
+        </div>
+      </div>
+      <ol class="timeline" data-reveal aria-label="Terminy po wpisie do wykazu">
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Dzień 0</div><div class="tl-what">Informacja o&nbsp;wpisie do wykazu</div></li>
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Do 6 miesięcy</div><div class="tl-what">Analiza zagrożeń, w&nbsp;tym scenariusze dronowe</div></li>
+        <li class="tl-step"><span class="tl-bar"></span><div class="tl-when">Kolejne 6 miesięcy</div><div class="tl-what">Wdrożenie zabezpieczeń</div></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- HOW -->
+  <section class="sec sec-panel" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="how-h" data-reveal>Od sygnału do raportu.</h2>
+      </div>
+      <ol class="rows">
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Nasłuch</h3>
+          <div class="row-ic"><i class="ph-light ph-waveform" aria-hidden="true"></i></div>
+          <p class="row-txt">HERMES montujesz na maszcie lub dachu. Odbiera Remote ID przez Wi-Fi i&nbsp;Bluetooth oraz namierza łącza sterowania dronów. Bez kamer i&nbsp;bez żadnej emisji.</p>
+        </li>
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Alarm</h3>
+          <div class="row-ic"><i class="ph-light ph-bell-ringing" aria-hidden="true"></i></div>
+          <p class="row-txt">Gdy dron wchodzi w&nbsp;strefę, osoba na dyżurze dostaje alarm z&nbsp;podanym poziomem pewności. Pewność jest pokazana, nie ukryta.</p>
+        </li>
+        <li class="row" data-reveal>
+          <h3 class="row-verb">Dowód</h3>
+          <div class="row-ic"><i class="ph-light ph-file-text" aria-hidden="true"></i></div>
+          <p class="row-txt">Każdy alarm zachowuje surowy materiał dowodowy. Z&nbsp;niego powstaje raport incydentu po polsku: czas, ślad, numer seryjny, kierunek i&nbsp;pozycja pilota, jeśli dron ją nadaje.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- HERMES NODE -->
+  <section class="sec" id="hermes" aria-labelledby="hermes-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>Sprzęt</p>
+        <h2 class="h2" id="hermes-h" data-reveal style="--d:.05s">Węzeł HERMES</h2>
+        <p class="lead" data-reveal style="--d:.1s">Jedna szczelna obudowa na maszt. Wersja ID odczytuje Remote ID. Wersja ID + DF dodaje pięcioantenowy namiernik. Obróć model, otwórz pokrywę, przełącz wersję.</p>
+      </div>
+
+      <div class="node-grid" data-node>
+        <div data-reveal>
+          <div class="stage plus" data-node-stage>
+            <canvas aria-label="Interaktywny model 3D węzła HERMES: obudowa na maszcie, na wersji ID + DF z pięcioantenową macierzą namiarową nad nią" role="img"></canvas>
+            <div class="stage-bar">
+              <span class="label">HERMES / model 3D</span>
+              <span class="label stage-hint"><i class="ph-light ph-hand-grabbing" aria-hidden="true"></i> Przeciągnij, aby obrócić</span>
+            </div>
+            <div class="stage-loading" aria-hidden="true"></div>
+            <div class="stage-tip" data-node-tip aria-hidden="true"></div>
+            <div class="label stage-readout" data-node-readout aria-hidden="true">YAW 0° · PITCH 0°</div>
+            <div class="stage-fallback"><p>Model 3D wymaga przeglądarki z&nbsp;obsługą WebGL. Lista części obok opisuje węzeł.</p></div>
+          </div>
+          <div class="controls" role="group" aria-label="Sterowanie modelem">
+            <button class="chip" type="button" data-act="spin" aria-pressed="true">Obrót</button>
+            <button class="chip" type="button" data-act="front" aria-pressed="false">Przód</button>
+            <button class="chip" type="button" data-act="side" aria-pressed="false">Bok</button>
+            <button class="chip" type="button" data-act="top" aria-pressed="false">Góra</button>
+            <button class="chip" type="button" data-act="cover" aria-pressed="false">Otwórz pokrywę</button>
+            <span class="sep" aria-hidden="true"></span>
+            <button class="chip chip-acc" type="button" data-variant="id" aria-pressed="false">ID</button>
+            <button class="chip chip-acc" type="button" data-variant="df" aria-pressed="true">ID + DF</button>
+          </div>
+        </div>
+
+        <div class="parts" data-reveal style="--d:.08s">
+          <div class="parts-head">
+            <span class="label" data-variant-title>HERMES ID + DF · części</span>
+            <span class="label">08</span>
+          </div>
+          <ul>
+            <li><button class="part" type="button" data-part="enclosure"><span class="part-sw" style="background:#2c2f35"></span><span><span class="part-n">Obudowa IP66/IP67</span><span class="part-d">Montaż na maszcie lub ścianie</span></span></button></li>
+            <li><button class="part" type="button" data-part="pi"><span class="part-sw" style="background:#3e7d52"></span><span><span class="part-n">Raspberry Pi 5</span><span class="part-d">Steruje węzłem, przechowuje zapisy offline</span></span></button></li>
+            <li><button class="part" type="button" data-part="esp"><span class="part-sw" style="background:#2f6fa8"></span><span><span class="part-n">ESP32-C5 ×2</span><span class="part-d">Remote ID przez Wi-Fi 2,4 i 5 GHz</span></span></button></li>
+            <li><button class="part" type="button" data-part="cc"><span class="part-sw" style="background:#7a5ba6"></span><span><span class="part-n">Odbiornik CC2652P</span><span class="part-d">Remote ID przez Bluetooth 5 Long Range</span></span></button></li>
+            <li><button class="part" type="button" data-part="idant"><span class="part-sw" style="background:#e8e4db"></span><span><span class="part-n">Anteny ID</span><span class="part-d">2,4 i 5 GHz, na obudowie</span></span></button></li>
+            <li><button class="part" type="button" data-part="kraken" data-df><span class="part-sw" style="background:#8a8f98"></span><span><span class="part-n">KrakenSDR</span><span class="part-d">5 spójnych kanałów, 24 do 1766 MHz. Tylko ID + DF</span></span></button></li>
+            <li><button class="part" type="button" data-part="array" data-df><span class="part-sw" style="background:#ff5a1f"></span><span><span class="part-n">Macierz namiarowa</span><span class="part-d">5 anten na okręgu, strojona na 868 MHz. Tylko ID + DF</span></span></button></li>
+            <li><button class="part" type="button" data-part="clamps"><span class="part-sw" style="background:#62656c"></span><span><span class="part-n">Obejmy masztowe</span><span class="part-d">Adaptery drukowane 3D</span></span></button></li>
+          </ul>
+          <p class="parts-note">Model koncepcyjny, uproszczony, nie w&nbsp;skali. Kliknij część, aby ją wskazać.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANDS -->
+  <section class="sec sec-panel" id="bands" aria-labelledby="bands-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="bands-h" data-reveal>Dwa zmysły, różne pasma.</h2>
+        <p class="lead" data-reveal style="--d:.06s">KrakenSDR nie słyszy 2,4 ani 5,8 GHz. Dlatego HERMES łączy dwa źródła, które pokrywają swoje martwe pola.</p>
+      </div>
+
+      <div class="spec-scroll" data-reveal>
+        <div class="spec-head">
+          <span class="label">Pokrycie pasm · skala logarytmiczna</span>
+          <span class="label">300 MHz do 7 GHz</span>
+        </div>
+        <div class="spec" role="img" aria-label="Wykres pasm: namiernik KrakenSDR pokrywa 24 do 1766 MHz, w tym 433 MHz, 868 MHz i 1,2 GHz. Odbiorniki Remote ID pokrywają 2,4 GHz i 5 GHz. Powyżej 1766 MHz namiar nie jest możliwy.">
+          <div class="spec-lane">
+            <span class="label spec-lab">Namiernik · KrakenSDR</span>
+            <div class="spec-bed">
+              <div class="spec-cover" style="width:56.28%"></div>
+              <div class="spec-out" style="left:56.28%"><span>Poza zasięgiem namiernika</span></div>
+              <div class="band df" style="left:11.65%"><span class="band-t">433 MHz</span></div>
+              <div class="band df" style="left:33.73%"><span class="band-t">868 MHz</span></div>
+              <div class="band df band-w" style="left:44.01%;width:2.54%"><span class="band-t">1,2 GHz</span></div>
+            </div>
+          </div>
+          <div class="spec-lane">
+            <span class="label spec-lab">Remote ID · ESP32-C5 + CC2652P</span>
+            <div class="spec-bed">
+              <div class="band rid" style="left:66.56%"><span class="band-t">2,4 GHz</span></div>
+              <div class="band rid band-w" style="left:90.26%;width:4.04%"><span class="band-t">5 GHz</span></div>
+            </div>
+          </div>
+          <div class="spec-limit" style="left:calc(32px + (100% - 64px) * 0.5628)"><span>1766 MHz · granica KrakenSDR</span></div>
+          <div class="spec-axis">
+            <span class="tick" style="left:16.22%">500 MHz</span>
+            <span class="tick" style="left:38.22%">1 GHz</span>
+            <span class="tick" style="left:60.23%">2 GHz</span>
+            <span class="tick" style="left:89.32%">5 GHz</span>
+          </div>
+        </div>
+      </div>
+      <p class="label spec-note">Pasma z dokumentacji KrakenSDR i standardów Remote ID. To zakres projektowy, nie wynik pomiaru.</p>
+
+      <div class="sensors">
+        <div class="sensor" data-reveal>
+          <div class="sensor-k"><span class="sensor-sw" style="background:#111214"></span><h3 class="h3">Odbiorniki tożsamości</h3></div>
+          <dl>
+            <dt>Słyszy</dt><dd>Drony nadające Remote ID przez Wi-Fi 2,4 i 5 GHz oraz Bluetooth 5.</dd>
+            <dt>Daje</dt><dd>Numer seryjny, pozycję, wysokość, prędkość, pozycję pilota lub miejsca startu.</dd>
+            <dt>Nie widzi</dt><dd>Niczego, co nie nadaje Remote ID, w&nbsp;tym większości wrogich dronów.</dd>
+          </dl>
+        </div>
+        <div class="sensor" data-reveal style="--d:.08s">
+          <div class="sensor-k"><span class="sensor-sw" style="background:#ff5a1f"></span><h3 class="h3">Namiernik</h3></div>
+          <dl>
+            <dt>Słyszy</dt><dd>Łącza sterowania i&nbsp;wideo na 433 MHz, 868 MHz i&nbsp;1,2 GHz, używane przez drony FPV i&nbsp;dalekiego zasięgu.</dd>
+            <dt>Daje</dt><dd>Kierunek z&nbsp;jednego węzła, pozycję z&nbsp;dwóch.</dd>
+            <dt>Nie widzi</dt><dd>Łączy 2,4 i&nbsp;5,8 GHz oraz dronów bez żadnego łącza radiowego.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- SOFTWARE -->
+  <section class="sec" id="software" aria-labelledby="soft-h">
+    <div class="wrap soft-grid">
+      <div>
+        <div class="sec-head">
+          <h2 class="h2" id="soft-h" data-reveal>Jedno zdarzenie, jeden format.</h2>
+          <p class="lead" data-reveal style="--d:.06s">Każdy czujnik zapisuje zdarzenia w&nbsp;tym samym formacie JSON, jedno na linię. Oprogramowanie działa dziś na sygnałach symulowanych i&nbsp;przechodzi 110 testów automatycznych.</p>
+        </div>
+        <ul class="feats" data-reveal style="--d:.1s">
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Strefy i&nbsp;lista autoryzowanych lotów, np. własnych dronów inspekcyjnych</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Potwierdzanie alarmów przez operatora i&nbsp;trwały dziennik zdarzeń</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Raport incydentu po polsku, PDF lub HTML, do akt ochrony obiektu</span></li>
+          <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Detekcja i&nbsp;zapis bez internetu; internet dodaje tylko zdalny dostęp</span></li>
+        </ul>
+      </div>
+      <div data-reveal style="--d:.08s">
+        <div class="code plus">
+          <div class="code-bar"><span class="label">events.jsonl</span><span class="code-tag">Przykład</span></div>
+<pre><code>{
+  <span class="k">"schema"</span>: <span class="s">"czapla.event/1"</span>,
+  <span class="k">"ts_utc"</span>: <span class="s">"2026-10-22T14:32:07.412Z"</span>,
+  <span class="k">"node_id"</span>: <span class="s">"hermes-01"</span>,
+  <span class="k">"sensor"</span>: <span class="s">"rf"</span>,
+  <span class="k">"band_mhz"</span>: <span class="n">868.4</span>,
+  <span class="k">"snr_db"</span>: <span class="n">21.3</span>,
+  <span class="k">"bearing_deg"</span>: <span class="n">234.0</span>,
+  <span class="k">"bearing_sigma_deg"</span>: <span class="n">6.0</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.83</span>,
+  <span class="k">"classification"</span>: <span class="s">"drone_like"</span>,
+  <span class="k">"alarm"</span>: <span class="b">true</span>,
+  <span class="k">"alarm_reason"</span>: <span class="s">"thresholds_met"</span>
+}</code></pre>
+        </div>
+        <p class="label code-cap">Format zdarzenia z oprogramowania. Wartości przykładowe, nie pomiar.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- TARGETS -->
+  <section class="sec sec-panel" id="targets" aria-labelledby="targets-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>Cele projektowe</p>
+        <h2 class="h2" id="targets-h" data-reveal style="--d:.05s">Cele, nie wyniki.</h2>
+        <p class="lead" data-reveal style="--d:.1s">Na razie nic poniżej nie jest wynikiem pomiaru. Każda pozycja dostanie prawdziwą liczbę po testach terenowych.</p>
+      </div>
+
+      <div class="tiles">
+        <article class="tile" data-reveal>
+          <div class="tile-bar"><span class="label">Namiar</span><span class="label">T-3</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><path d="M120 104 L97.2 19 A88 88 0 0 1 142.8 19 Z" fill="rgba(255,90,31,.1)" stroke="#ff5a1f" stroke-width="1"/><line x1="120" y1="104" x2="120" y2="8" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><path d="M58 50 A88 88 0 0 1 182 50" fill="none" stroke="#a8a9a4" stroke-width="1"/><rect x="116" y="100" width="8" height="8" fill="#111214"/></svg>
+            </div>
+            <div class="tile-v">±15°</div>
+            <p class="tile-d">Dokładność namiaru na stanowisku testowym.</p>
+            <div class="tile-tags"><span class="tag tag-t">Cel</span><span class="tag">Niezmierzone</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.06s">
+          <div class="tile-bar"><span class="label">Pozycja</span><span class="label">T-6</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><line x1="36" y1="102" x2="132" y2="22" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><line x1="204" y1="102" x2="108" y2="22" stroke="#111214" stroke-width="1" stroke-dasharray="3 4"/><circle cx="120" cy="32" r="17" fill="rgba(255,90,31,.1)" stroke="#ff5a1f" stroke-width="1"/><circle cx="120" cy="32" r="2.5" fill="#ff5a1f"/><rect x="32" y="98" width="8" height="8" fill="#111214"/><rect x="200" y="98" width="8" height="8" fill="#111214"/></svg>
+            </div>
+            <div class="tile-v">100<small>m</small></div>
+            <p class="tile-d">Błąd pozycji z&nbsp;dwóch węzłów przy odległości 500 m.</p>
+            <div class="tile-tags"><span class="tag tag-t">Cel</span><span class="tag">Niezmierzone</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.12s">
+          <div class="tile-bar"><span class="label">Opóźnienie alarmu</span><span class="label">T-7</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><line x1="16" y1="78" x2="224" y2="78" stroke="#111214" stroke-width="1"/><g stroke="#a8a9a4" stroke-width="1"><line x1="16" y1="78" x2="16" y2="86"/><line x1="57.6" y1="78" x2="57.6" y2="84"/><line x1="99.2" y1="78" x2="99.2" y2="84"/><line x1="140.8" y1="78" x2="140.8" y2="84"/><line x1="182.4" y1="78" x2="182.4" y2="84"/><line x1="224" y1="78" x2="224" y2="86"/></g><path d="M16 78 L22 60 L28 92 L34 50 L40 86 L46 66 L52 78" fill="none" stroke="#111214" stroke-width="1"/><line x1="196" y1="26" x2="196" y2="78" stroke="#ff5a1f" stroke-width="1.5"/><rect x="190" y="20" width="12" height="12" fill="#ff5a1f"/><text x="16" y="104" font-family="IBM Plex Mono, monospace" font-size="10" fill="#686a6f">0 s</text><text x="210" y="104" font-family="IBM Plex Mono, monospace" font-size="10" fill="#686a6f">5 s</text></svg>
+            </div>
+            <div class="tile-v">&lt;5<small>s</small></div>
+            <p class="tile-d">Od pierwszego sygnału do alarmu u&nbsp;osoby na dyżurze.</p>
+            <div class="tile-tags"><span class="tag tag-t">Cel</span><span class="tag">Niezmierzone</span></div>
+          </div>
+        </article>
+        <article class="tile" data-reveal style="--d:.18s">
+          <div class="tile-bar"><span class="label">Zasięg detekcji</span><span class="label">Na obiekcie</span></div>
+          <div class="tile-body">
+            <div class="tile-viz" aria-hidden="true">
+              <svg viewBox="0 0 240 112"><g fill="none" stroke="#a8a9a4" stroke-width="1" stroke-dasharray="2 5"><path d="M40 104 A80 80 0 0 1 200 104"/><path d="M68 104 A52 52 0 0 1 172 104"/><path d="M94 104 A26 26 0 0 1 146 104"/></g><line x1="16" y1="104" x2="224" y2="104" stroke="#111214" stroke-width="1"/><rect x="116" y="96" width="8" height="8" fill="#111214"/><text x="120" y="40" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" fill="#ff5a1f">?</text></svg>
+            </div>
+            <div class="tile-v">?</div>
+            <p class="tile-d">Zmierzymy na każdym obiekcie lotem testowym. Zależy od wysokości masztu i&nbsp;terenu.</p>
+            <div class="tile-tags"><span class="tag">Niezmierzone</span></div>
+          </div>
+        </article>
+      </div>
+
+      <div class="groups">
+        <div class="group" data-reveal>
+          <h3 class="h3">Odbiór</h3>
+          <dl>
+            <dt>Remote ID <span class="tag tag-t">Cel</span></dt>
+            <dd>Wi-Fi Beacon, Wi-Fi NAN, Bluetooth 4 Legacy, Bluetooth 5 Long Range (ASTM F3411, ASD-STAN prEN 4709-002).</dd>
+            <dt>Namiar <span class="tag tag-t">Cel</span></dt>
+            <dd>KrakenSDR, 5 spójnych kanałów, 24 do 1766 MHz. Łącza 433 MHz, 868 MHz i&nbsp;1,2 GHz.</dd>
+          </dl>
+        </div>
+        <div class="group" data-reveal style="--d:.06s">
+          <h3 class="h3">Platforma</h3>
+          <dl>
+            <dt>Komputer <span class="tag tag-t">Cel</span></dt>
+            <dd>Raspberry Pi 5, zapis lokalny.</dd>
+            <dt>Zasilanie <span class="tag tag-t">Cel</span></dt>
+            <dd>PoE lub 12 V. Jeden kabel na maszt.</dd>
+            <dt>Obudowa <span class="tag tag-t">Cel</span></dt>
+            <dd>IP66/IP67, montaż na maszcie lub ścianie.</dd>
+          </dl>
+        </div>
+        <div class="group" data-reveal style="--d:.12s">
+          <h3 class="h3">Z założenia</h3>
+          <dl>
+            <dt>Emisja <span class="tag tag-ok">Z założenia</span></dt>
+            <dd>Tylko odbiór. Sprzęt nie ma toru nadawczego.</dd>
+            <dt>Praca offline <span class="tag tag-ok">Z założenia</span></dt>
+            <dd>Detekcja i&nbsp;zapis nie wymagają internetu.</dd>
+            <dt>Dane <span class="tag tag-ok">Z założenia</span></dt>
+            <dd>Retencja materiału dowodowego konfigurowalna, domyślnie 90 dni.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITS -->
+  <section class="sec" id="limits" aria-labelledby="limits-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="limits-h" data-reveal>Czego HERMES nie robi i&nbsp;czego nie widzi.</h2>
+        <p class="lead" data-reveal style="--d:.06s">Uczciwe ograniczenia, zanim o&nbsp;nie zapytasz.</p>
+      </div>
+      <div class="limits-grid">
+        <div class="limit-col" data-reveal>
+          <h3 class="h3"><i class="ph-light ph-prohibit" aria-hidden="true"></i>Nie robi</h3>
+          <ul>
+            <li><strong>Nie zakłóca i&nbsp;nie przejmuje kontroli nad dronem.</strong> Urządzenie wyłącznie odbiera. Nie ma w&nbsp;nim toru nadawczego.</li>
+            <li><strong>Nie neutralizuje.</strong> Decyzję o&nbsp;działaniu wobec drona podejmuje człowiek, na podstawie przepisów, w&nbsp;tym art. 156ze Prawa lotniczego.</li>
+            <li><strong>Nie zastępuje radaru.</strong> To tania i&nbsp;szybka we wdrożeniu warstwa detekcji, nie system wojskowy.</li>
+          </ul>
+        </div>
+        <div class="limit-col" data-reveal style="--d:.08s">
+          <h3 class="h3"><i class="ph-light ph-eye-slash" aria-hidden="true"></i>Nie widzi</h3>
+          <ul>
+            <li><strong>Dronów na światłowodzie i&nbsp;dronów bez łącza radiowego.</strong> Do nich potrzebny jest radar lub kamera. Fuzję z&nbsp;takimi czujnikami planujemy w&nbsp;wersji 2.</li>
+            <li><strong>Dronów na 2,4 i&nbsp;5,8 GHz, które nie nadają Remote ID.</strong> Namiernik słyszy tylko pasma poniżej 1766 MHz.</li>
+            <li><strong>Współrzędnych z&nbsp;jednego węzła.</strong> Namiar to kierunek. Pozycja wymaga dwóch węzłów.</li>
+            <li><strong>Pewnego tła od pierwszego dnia.</strong> W&nbsp;otoczeniu gęstym od sygnałów rośnie liczba fałszywych trafień, dlatego system uczy się tła przez okres bazowy.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
+
+  <!-- STATUS -->
+  <section class="sec sec-panel" id="status" aria-labelledby="status-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2" id="status-h" data-reveal>Gdzie jesteśmy.</h2>
+        <p class="lead" data-reveal style="--d:.06s">Wyniki publikujemy na bieżąco, także te nieudane.</p>
+      </div>
+      <ol class="road" data-reveal>
+        <li class="now">
+          <span class="road-dot"></span>
+          <div class="road-when">Teraz</div>
+          <p class="road-what">Oprogramowanie</p>
+          <p class="road-txt">Detekcja, klasyfikacja i&nbsp;polski raport działają na sygnałach symulowanych. 110 testów automatycznych przechodzi.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">Dalej</div>
+          <p class="road-what">Pierwszy węzeł na stanowisku</p>
+          <p class="road-txt">Odbiór Remote ID i&nbsp;namiar względem znanych nadajników.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">Potem</div>
+          <p class="road-what">Testy w&nbsp;terenie</p>
+          <p class="road-txt">Dwa węzły, prawdziwe loty, doba liczenia fałszywych alarmów, 7 dni w&nbsp;polskiej pogodzie.</p>
+        </li>
+        <li>
+          <span class="road-dot"></span>
+          <div class="road-when">Następnie</div>
+          <p class="road-what">Obiekty pilotażowe</p>
+          <p class="road-txt">90-dniowe pilotaże z&nbsp;zakresem i&nbsp;kryteriami odbioru ustalonymi z&nbsp;góry.</p>
+        </li>
+      </ol>
+      <div class="who" data-reveal>
+        <span class="label who-k">Dla kogo</span>
+        <span class="pill">Gminy i powiaty</span>
+        <span class="pill">Farmy PV i wiatrowe</span>
+        <span class="pill">Parki logistyczne</span>
+        <span class="pill">Operatorzy infrastruktury krytycznej</span>
+        <span class="pill">Firmy ochrony i integratorzy</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILOT -->
+  <section class="sec" id="pilot" aria-labelledby="pilot-h">
+    <div class="wrap pilot-grid">
+      <div>
+        <p class="eyebrow" data-reveal>Lista pilotażowa</p>
+        <h2 class="h2" id="pilot-h" data-reveal style="--d:.05s;margin-top:20px">Zgłoś obiekt do pilotażu.</h2>
+        <p class="lead" data-reveal style="--d:.1s;margin-top:20px">Opowiedz nam o&nbsp;obiekcie. Gdy testy terenowe wypadną pomyślnie, obiekty z&nbsp;listy dostaną pierwsze miejsca w&nbsp;pilotażu.</p>
+        <ol class="steps" data-reveal style="--d:.14s">
+          <li>Dzwonimy i&nbsp;oglądamy obiekt na mapie.</li>
+          <li>Jeśli pasuje, wysyłamy jednostronicowy, niewiążący list intencyjny.</li>
+          <li>Wyniki testów dostajesz, zanim cokolwiek zostanie zaoferowane do sprzedaży.</li>
+        </ol>
+        <dl class="terms" data-reveal style="--d:.18s">
+          <dt>Dajemy</dt><dd>Węzeł na czas testu, oprogramowanie, raporty incydentów, pomoc w&nbsp;interpretacji wyników.</dd>
+          <dt>Oczekujemy</dt><dd>Miejsca na maszt lub dach, zasilania i&nbsp;zgody na pomiar w&nbsp;warunkach rzeczywistych.</dd>
+          <dt>Czas</dt><dd>90 dni, z&nbsp;raportem końcowym zawierającym zmierzone parametry.</dd>
+          <dt>Koszt</dt><dd>Ustalamy po rozmowie o&nbsp;zakresie. Nie publikujemy cen przed ustaleniem zakresu.</dd>
+        </dl>
+      </div>
+
+      <div class="form-shell plus" data-reveal style="--d:.08s">
+        <div class="form-bar"><span class="label">Zgłoszenie obiektu</span><span class="label">Bez płatności · bez zobowiązań</span></div>
+        <div class="form-body" data-form-body>
+          <form class="form" data-pilot-form novalidate>
+            <div class="field">
+              <label for="f-name">Imię i nazwisko <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" aria-describedby="e-name">
+              <span class="err" id="e-name"></span>
+            </div>
+            <div class="field">
+              <label for="f-org">Organizacja lub obiekt <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-org" name="organization" type="text" autocomplete="organization" required maxlength="200" aria-describedby="e-org">
+              <span class="err" id="e-org"></span>
+            </div>
+            <div class="field">
+              <label for="f-email">E-mail <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="f-email" name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="e-email">
+              <span class="err" id="e-email"></span>
+            </div>
+            <div class="field">
+              <label for="f-phone">Telefon <span class="opt">(opcjonalnie)</span></label>
+              <input class="input" id="f-phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+            </div>
+            <div class="field">
+              <label for="f-type">Rodzaj obiektu <span class="req" aria-hidden="true">*</span></label>
+              <select class="input" id="f-type" name="site_type" required aria-describedby="e-type">
+                <option value="">Wybierz</option>
+                <option value="gmina">Gmina lub powiat</option>
+                <option value="oze">Farma PV lub wiatrowa</option>
+                <option value="logistics">Magazyn lub logistyka</option>
+                <option value="critical">Infrastruktura krytyczna</option>
+                <option value="integrator">Firma ochrony lub integrator</option>
+                <option value="other">Inny</option>
+              </select>
+              <span class="err" id="e-type"></span>
+            </div>
+            <div class="field">
+              <label for="f-town">Miejscowość <span class="opt">(opcjonalnie)</span></label>
+              <input class="input" id="f-town" name="town" type="text" autocomplete="address-level2" maxlength="120">
+            </div>
+            <div class="field field-full">
+              <label for="f-msg">Co niepokoi Cię w&nbsp;związku z&nbsp;dronami na tym obiekcie? <span class="opt">(opcjonalnie)</span></label>
+              <textarea class="input" id="f-msg" name="message" rows="4" maxlength="4000" aria-describedby="h-msg"></textarea>
+              <span class="help" id="h-msg">Np. powierzchnia, otoczenie, czy plan ochrony ma już część dronową.</span>
+            </div>
+            <div class="hp" aria-hidden="true">
+              <label for="f-web">Strona www</label>
+              <input id="f-web" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <div class="check">
+              <input id="f-loi" name="loi_interest" type="checkbox">
+              <label for="f-loi">Jestem otwarty/a na podpisanie niewiążącego listu intencyjnego w&nbsp;sprawie pilotażu.</label>
+            </div>
+            <div class="check">
+              <input id="f-consent" name="consent" type="checkbox" required aria-describedby="e-consent">
+              <label for="f-consent">Zgadzam się na przetwarzanie podanych danych w&nbsp;celu kontaktu w&nbsp;sprawie pilotażu. Szczegóły w&nbsp;<a href="polityka-prywatnosci.html">polityce prywatności</a>. <span class="req" aria-hidden="true">*</span></label>
+              <span class="err" id="e-consent"></span>
+            </div>
+            <div class="form-msg" role="alert" data-form-msg></div>
+            <div class="form-foot">
+              <button class="btn btn-primary" type="submit" data-submit>Wyślij zgłoszenie <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></button>
+              <span class="muted">Pola z&nbsp;<span class="req">*</span> są wymagane.</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="#top" aria-label="SKARVIS, na górę strony">
+          <span class="brand-word">SKARVIS</span>
+        </a>
+        <p>Pasywna detekcja i&nbsp;rejestracja zdarzeń dronowych. HERMES wyłącznie odbiera sygnały. Nie zakłóca, nie przejmuje i&nbsp;nie strąca dronów.</p>
+      </div>
+      <div>
+        <p class="label">Kontakt</p>
+        <p>Bolesławiec, Polska</p>
+        <p data-contact>Przez <a href="#pilot">formularz pilotażowy</a></p>
+      </div>
+      <div>
+        <p class="label">Strona</p>
+        <ul class="foot-links">
+          <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
+          <li><a href="en/" hreflang="en" lang="en">English</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 SKARVIS · projekt w fazie rozwoju</span>
+      <span>Materiał nie stanowi oferty w rozumieniu art. 66 Kodeksu cywilnego. Parametry zostaną potwierdzone testami terenowymi.</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
