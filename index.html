@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="assets/vendor/phosphor-light/style.css">
 <link rel="stylesheet" href="assets/css/site.css">
 <script>document.documentElement.classList.add('js')</script>
 <script type="importmap">
@@ -48,6 +48,7 @@
         <li><a href="#hermes">HERMES</a></li>
         <li><a href="#targets">Parametry</a></li>
         <li><a href="#status">Stan prac</a></li>
+        <li><a href="#platforma">Platforma</a></li>
       </ul>
       <div class="lang" aria-label="Język">
         <span aria-current="true">PL</span><a href="en/" hreflang="en" lang="en">EN</a>
@@ -64,7 +65,8 @@
     <li><a href="#hermes">HERMES <small>02</small></a></li>
     <li><a href="#targets">Parametry <small>03</small></a></li>
     <li><a href="#status">Stan prac <small>04</small></a></li>
-    <li><a href="#pilot">Zgłoś obiekt <small>05</small></a></li>
+    <li><a href="#platforma">Platforma <small>05</small></a></li>
+    <li><a href="#pilot">Zgłoś obiekt <small>06</small></a></li>
   </ul>
   <div class="menu-foot">
     <div class="lang" aria-label="Język"><span aria-current="true">PL</span><a href="en/" hreflang="en" lang="en">EN</a></div>
@@ -320,7 +322,7 @@
       <div>
         <div class="sec-head">
           <h2 class="h2" id="soft-h" data-reveal>Jedno zdarzenie, jeden format.</h2>
-          <p class="lead" data-reveal style="--d:.06s">Każdy czujnik zapisuje zdarzenia w&nbsp;tym samym formacie JSON, jedno na linię. Oprogramowanie działa dziś na sygnałach symulowanych i&nbsp;przechodzi 165 testów automatycznych.</p>
+          <p class="lead" data-reveal style="--d:.06s">Każdy czujnik zapisuje zdarzenia w&nbsp;tym samym formacie JSON, jedno na linię. Oprogramowanie działa dziś na sygnałach symulowanych i&nbsp;przechodzi 163 testy automatyczne.</p>
         </div>
         <ul class="feats" data-reveal style="--d:.1s">
           <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Strefy i&nbsp;lista autoryzowanych lotów, np. własnych dronów inspekcyjnych</span></li>
@@ -489,7 +491,7 @@
           <span class="road-dot"></span>
           <div class="road-when">Teraz</div>
           <p class="road-what">Oprogramowanie</p>
-          <p class="road-txt">Detekcja, klasyfikacja i&nbsp;polski raport działają na sygnałach symulowanych. 165 testów automatycznych przechodzi.</p>
+          <p class="road-txt">Detekcja, klasyfikacja i&nbsp;polski raport działają na sygnałach symulowanych. 163 testy automatyczne przechodzą. Symulator ćwiczeń działa na danych syntetycznych.</p>
         </li>
         <li>
           <span class="road-dot"></span>
@@ -520,6 +522,48 @@
       </div>
     </div>
   </section>
+
+  <!-- PLATFORM -->
+  <section class="sec" id="platforma" aria-labelledby="plat-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>Platforma SKARVIS</p>
+        <h2 class="h2" id="plat-h" data-reveal style="--d:.05s">Powietrze, teren i&nbsp;ćwiczenia w&nbsp;jednym dzienniku.</h2>
+        <p class="lead" data-reveal style="--d:.1s">HERMES jest pierwszy. Kolejne warstwy zapisują zdarzenia w&nbsp;tym samym formacie, podlegają tej samej polityce alarmów i&nbsp;trafiają do tego samego polskiego raportu. Plan ochrony obiektu dostaje jeden ślad dowodowy.</p>
+      </div>
+      <div class="prods">
+        <article class="prod" data-reveal>
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-broadcast" aria-hidden="true"></i> Powietrze</span><span class="label">01</span></div>
+          <div class="prod-body">
+            <h3 class="h3">HERMES</h3>
+            <p>Pasywna detekcja dronów: odczyt Remote ID i&nbsp;namiar łączy 433&nbsp;MHz, 868&nbsp;MHz i&nbsp;1,2&nbsp;GHz. Szczegóły <a href="#hermes">wyżej na tej stronie</a>.</p>
+            <div class="prod-tags"><span class="tag tag-t">W budowie</span><span class="tag">Pierwszy węzeł w&nbsp;przygotowaniu</span></div>
+          </div>
+        </article>
+        <article class="prod" data-reveal style="--d:.06s">
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> Teren</span><span class="label">Nazwa robocza</span></div>
+          <div class="prod-body">
+            <h3 class="h3">SKARVIS Teren</h3>
+            <p>Rozróżnia osobę, zwierzę i&nbsp;pojazd. Alarm tylko wtedy, gdy obiekt w&nbsp;obrębie ogrodzenia potwierdzą dwa różne typy czujników, na przykład termowizja i&nbsp;kamera, którą obiekt już ma. Cel: mniej alarmów wywołanych przez zwierzęta.</p>
+            <p>Oprogramowanie sprawdzamy na danych syntetycznych. Czujników jeszcze nie wybraliśmy i&nbsp;niczego nie zmierzyliśmy.</p>
+            <div class="prod-tags"><span class="tag tag-t">Koncepcja</span><span class="tag">Bez sprzętu</span><span class="tag">Niezmierzone</span></div>
+          </div>
+        </article>
+        <article class="prod" data-reveal style="--d:.12s">
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-graduation-cap" aria-hidden="true"></i> Ćwiczenia</span><span class="label">Nazwa robocza</span></div>
+          <div class="prod-body">
+            <h3 class="h3">SKARVIS Trener</h3>
+            <p>Symulator ćwiczeń dla osób na dyżurze: alarm, potwierdzenie, weryfikacja, decyzja i&nbsp;zapis z&nbsp;ćwiczenia. Pokazuje też, czego system nie widzi, na przykład drona sterowanego światłowodem.</p>
+            <p>Dane są syntetyczne. Wynik ćwiczenia wynika z&nbsp;założeń scenariusza i&nbsp;nie jest pomiarem skuteczności systemu.</p>
+            <div class="prod-tags"><span class="tag tag-ok">Demonstrator działa</span><span class="tag">Dane syntetyczne</span></div>
+            <a class="btn btn-ghost btn-sm prod-cta" href="trener/">Otwórz demonstrator <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
 
   <!-- PILOT -->
   <section class="sec" id="pilot" aria-labelledby="pilot-h">

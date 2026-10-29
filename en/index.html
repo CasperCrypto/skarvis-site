@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+<link rel="stylesheet" href="../assets/vendor/phosphor-light/style.css">
 <link rel="stylesheet" href="../assets/css/site.css">
 <script>document.documentElement.classList.add('js')</script>
 <script type="importmap">
@@ -48,6 +48,7 @@
         <li><a href="#hermes">HERMES</a></li>
         <li><a href="#targets">Targets</a></li>
         <li><a href="#status">Status</a></li>
+        <li><a href="#platform">Platform</a></li>
       </ul>
       <div class="lang" aria-label="Language">
         <a href="../" hreflang="pl" lang="pl">PL</a><span aria-current="true">EN</span>
@@ -64,7 +65,8 @@
     <li><a href="#hermes">HERMES <small>02</small></a></li>
     <li><a href="#targets">Targets <small>03</small></a></li>
     <li><a href="#status">Status <small>04</small></a></li>
-    <li><a href="#pilot">Join the pilot list <small>05</small></a></li>
+    <li><a href="#platform">Platform <small>05</small></a></li>
+    <li><a href="#pilot">Join the pilot list <small>06</small></a></li>
   </ul>
   <div class="menu-foot">
     <div class="lang" aria-label="Language"><a href="../" hreflang="pl" lang="pl">PL</a><span aria-current="true">EN</span></div>
@@ -320,7 +322,7 @@
       <div>
         <div class="sec-head">
           <h2 class="h2" id="soft-h" data-reveal>One event, one format.</h2>
-          <p class="lead" data-reveal style="--d:.06s">Every sensor writes events in the same JSON format, one per line. The software runs today on simulated signals and passes 165 automated tests.</p>
+          <p class="lead" data-reveal style="--d:.06s">Every sensor writes events in the same JSON format, one per line. The software runs today on simulated signals and passes 163 automated tests.</p>
         </div>
         <ul class="feats" data-reveal style="--d:.1s">
           <li><i class="ph-light ph-check" aria-hidden="true"></i><span>Zones and a list of authorised flights, such as your own inspection drones</span></li>
@@ -489,7 +491,7 @@
           <span class="road-dot"></span>
           <div class="road-when">Now</div>
           <p class="road-what">Software</p>
-          <p class="road-txt">Detection, classification and the Polish report run on simulated signals. 165 automated tests pass.</p>
+          <p class="road-txt">Detection, classification and the Polish report run on simulated signals. 163 automated tests pass. The exercise simulator runs on synthetic data.</p>
         </li>
         <li>
           <span class="road-dot"></span>
@@ -520,6 +522,48 @@
       </div>
     </div>
   </section>
+
+  <!-- PLATFORM -->
+  <section class="sec" id="platform" aria-labelledby="plat-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow" data-reveal>The SKARVIS platform</p>
+        <h2 class="h2" id="plat-h" data-reveal style="--d:.05s">Air, ground and drills in one event log.</h2>
+        <p class="lead" data-reveal style="--d:.1s">HERMES comes first. The next layers write events in the same format, follow the same alarm policy and end up in the same Polish report, so a site's protection plan gets one evidence trail.</p>
+      </div>
+      <div class="prods">
+        <article class="prod" data-reveal>
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-broadcast" aria-hidden="true"></i> Air</span><span class="label">01</span></div>
+          <div class="prod-body">
+            <h3 class="h3">HERMES</h3>
+            <p>Passive drone detection: Remote ID decoding and direction finding on 433&nbsp;MHz, 868&nbsp;MHz and 1.2&nbsp;GHz links. Details <a href="#hermes">above on this page</a>.</p>
+            <div class="prod-tags"><span class="tag tag-t">In development</span><span class="tag">First node in preparation</span></div>
+          </div>
+        </article>
+        <article class="prod" data-reveal style="--d:.06s">
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-person-simple-walk" aria-hidden="true"></i> Ground</span><span class="label">Working name</span></div>
+          <div class="prod-body">
+            <h3 class="h3">SKARVIS Teren</h3>
+            <p>Tells a person from an animal and a vehicle. It alarms only when two different sensor types confirm an object inside the fence, for example thermal and a camera the site already has. Goal: fewer alarms caused by animals.</p>
+            <p>We test the software on synthetic data. No sensor has been chosen and nothing has been measured.</p>
+            <div class="prod-tags"><span class="tag tag-t">Concept</span><span class="tag">No hardware</span><span class="tag">Not measured</span></div>
+          </div>
+        </article>
+        <article class="prod" data-reveal style="--d:.12s">
+          <div class="prod-bar"><span class="label"><i class="ph-light ph-graduation-cap" aria-hidden="true"></i> Drills</span><span class="label">Working name</span></div>
+          <div class="prod-body">
+            <h3 class="h3">SKARVIS Trener</h3>
+            <p>An exercise simulator for the people on shift: alarm, acknowledge, verify, decide, and an exercise record. It also shows what the system cannot see, such as a drone flown over fibre-optic cable.</p>
+            <p>The data is synthetic. An exercise score follows from the scenario's assumptions and is not a measurement of the system.</p>
+            <div class="prod-tags"><span class="tag tag-ok">Demo works</span><span class="tag">Synthetic data</span></div>
+            <a class="btn btn-ghost btn-sm prod-cta" href="../trener/" hreflang="pl">Open the demo (Polish) <span class="btn-ic"><i class="ph-light ph-arrow-up-right" aria-hidden="true"></i></span></a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="hatch" aria-hidden="true"></div>
 
   <!-- PILOT -->
   <section class="sec" id="pilot" aria-labelledby="pilot-h">

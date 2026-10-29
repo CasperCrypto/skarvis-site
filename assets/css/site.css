@@ -1023,6 +1023,22 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .tile { min-height: 0; }
 }
 
+/* ---------- platform ---------- */
+
+.prods { margin-top: clamp(40px, 5vw, 64px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2vw, 24px); }
+.prod { display: flex; flex-direction: column; border: 1px solid var(--line-2); background: var(--panel); min-width: 0; }
+.prod-bar { display: flex; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.prod-bar i { color: var(--accent); }
+.prod-body { display: flex; flex-direction: column; gap: 12px; flex: 1; padding: 20px 18px; }
+.prod-body .h3 { margin: 0; }
+.prod-body p { margin: 0; color: var(--ink-2); font-size: 15.5px; line-height: 1.55; text-wrap: pretty; }
+.prod-body p a { color: var(--accent-ink); }
+.prod-tags { margin-top: auto; padding-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+.prod-cta { align-self: flex-start; }
+@media (max-width: 1023px) {
+  .prods { grid-template-columns: 1fr; }
+}
+
 /* ---------- limits ---------- */
 
 .limits-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 5vw, 80px); }

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SKARVIS Trener</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Symulator ćwiczeń dla operatorów ochrony obiektu: drony i intruzi naziemni na danych syntetycznych. Wyniki symulacji opisują założenia, nie skuteczność systemu.">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sim.css">
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand"><a href="../" title="Strona SKARVIS">SKARVIS</a><span>Trener · ćwiczenia operatorów</span></div>
+    <span class="synthetic" title="Wszystkie dane na tej stronie pochodzą z symulacji.">Symulacja · dane syntetyczne</span>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Tryb">
+      <button type="button" id="mode-drill" data-mode="drill" aria-pressed="true">Ćwiczenie</button>
+      <button type="button" id="mode-instructor" data-mode="instructor" aria-pressed="false">Instruktor</button>
+    </div>
+    <label class="btn filebtn" for="run-file">Wczytaj przebieg…<input type="file" id="run-file" accept=".json,.js,application/json"></label>
+  </header>
+
+  <section class="scenario" aria-live="polite">
+    <h1 id="sc-name">Ładowanie scenariusza…</h1>
+    <p id="sc-desc"></p>
+  </section>
+
+  <div class="main">
+    <div class="left">
+      <div class="mapbox" id="mapbox">
+        <canvas id="map" aria-label="Mapa obiektu z czujnikami, namiarami i śladami"></canvas>
+        <div class="corner">
+          <div class="seg" role="group" aria-label="Skala mapy">
+            <button type="button" id="zoom-obiekt" data-zoom="obiekt" aria-pressed="true">Obiekt</button>
+            <button type="button" id="zoom-strefa" data-zoom="strefa" aria-pressed="false">Strefa</button>
+            <button type="button" id="zoom-okolica" data-zoom="okolica" aria-pressed="false">Okolica</button>
+          </div>
+        </div>
+        <div class="flash" id="flash" hidden>Nowy alarm</div>
+      </div>
+
+      <div class="transport">
+        <button type="button" class="btn primary" id="play">Start</button>
+        <button type="button" class="btn" id="restart">Od początku</button>
+        <span class="clock" id="clock">00:00 / 00:00</span>
+        <input type="range" id="scrub" min="0" max="360" step="1" value="0" aria-label="Czas symulacji">
+        <label for="speed">Tempo
+          <select id="speed">
+            <option value="1">×1</option>
+            <option value="4" selected>×4</option>
+            <option value="10">×10</option>
+            <option value="30">×30</option>
+          </select>
+        </label>
+        <label for="autopause"><input type="checkbox" id="autopause" checked> Pauza przy alarmie</label>
+        <button type="button" class="btn" id="show-debrief">Podsumowanie</button>
+      </div>
+
+      <div class="legend" aria-label="Legenda">
+        <span><i class="k-ray"></i>namiar RF (KrakenSDR)</span>
+        <span><i class="k-fix"></i>pozycja z dwóch węzłów ± błąd</span>
+        <span><i class="k-alarm"></i>alarm / osoba w ogrodzeniu</span>
+        <span><i class="k-ok"></i>lot uzgodniony / zwierzę</span>
+        <span><i class="k-truth"></i>prawda symulacji (tryb instruktora)</span>
+      </div>
+    </div>
+
+    <aside class="right">
+      <h2><span>Alarmy do obsługi</span><span id="queue-count">0</span></h2>
+      <div class="queue" id="queue"><p class="empty">Brak alarmów. Uruchom symulację.</p></div>
+      <h2><span>Dziennik zdarzeń</span><span id="log-count">0</span></h2>
+      <div class="log"><ol id="log"></ol></div>
+    </aside>
+  </div>
+
+  <section class="debrief" id="debrief" hidden aria-labelledby="debrief-title"></section>
+  <div class="error" id="error" hidden></div>
+</div>
+
+<script src="runs/podstacja.js"></script>
+<script src="sim.js"></script>
+</body>
+</html>

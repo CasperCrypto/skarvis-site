@@ -13,6 +13,7 @@ No build step and no framework: plain HTML, one CSS file, ES modules.
 | `assets/js/node3d.js` | Interactive 3D HERMES node (ID and ID + DF) |
 | `assets/js/config.js` | Supabase URL + publishable key, public contact email |
 | `assets/js/strings.js` | Text written by the scripts, PL and EN |
+| `trener/` | SKARVIS Trener demo (Polish operator drill on synthetic data); see `trener/README.md` |
 | `../supabase/001_pilot_signups.sql` | The table the form writes to |
 
 ## Run it locally
@@ -47,7 +48,8 @@ dashboard now and then, or move to a paid plan before launch.
 - [ ] Confirm the 12-month retention period in the privacy pages.
 - [ ] Set `contactEmail` in `assets/js/config.js` once a domain mailbox exists.
 - [ ] Optional for RODO: self-host the fonts, icons and Three.js instead of
-      loading them from Google Fonts, unpkg and jsDelivr.
+      loading them from Google Fonts and jsDelivr. (Icons are self-hosted
+      since 2026-10-29: `assets/vendor/phosphor-light/`, MIT licence.)
 - [ ] Choose hosting. GitHub Pages works for a static site, but on a private
       repository it needs a paid GitHub plan.
 
@@ -59,6 +61,10 @@ dashboard now and then, or move to a paid plan before launch.
 - Pilot list and non-binding letters of intent only. No prices.
 - The hero scene and its HUD are an illustration and say so on screen.
 - CASPER (interceptor research) is not on the public site.
+- The platform section shows each product's real status: HERMES in
+  development, Teren a concept with no hardware and nothing measured, Trener a
+  working demo on synthetic data. Do not upgrade a tag without a result in
+  `hardware/results.md`. The flight lab is not on the site (plan only).
 
 ## Design
 
